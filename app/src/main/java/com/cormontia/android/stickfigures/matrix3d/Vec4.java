@@ -2,7 +2,7 @@ package com.cormontia.android.stickfigures.matrix3d;
 
 public class Vec4
 {
-    private double data[];
+    private double[] data;
 
     public Vec4( double a, double b, double c, double d )
     {

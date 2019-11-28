@@ -3,7 +3,7 @@ package com.cormontia.android.stickfigures.matrix3d;
 public class Mat44
 {
     // Convention: a[row][column]
-    private double val[][];
+    private double[][] val;
 
     public Mat44( )
     {

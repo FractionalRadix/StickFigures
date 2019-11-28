@@ -8,21 +8,50 @@ import com.cormontia.android.stickfigures.matrix3d.Mat44;
 import com.cormontia.android.stickfigures.matrix3d.MatrixFactory;
 import com.cormontia.android.stickfigures.matrix3d.Vec4;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StickFigure
 {
     private Mat44 fullTransformation; // From world coordinates to screen coordinates.
 
-    private Joint waist, neck;
+    private Joint waist;
+    private List<Joint> joints = new ArrayList<>();
 
-    public StickFigure( StickFigureType figureType )
+    public StickFigure( )
     {
-        switch (figureType) {
-            case Human:
-                stickFigHuman();
-                break;
-            case Dog:
-                stickFigDog();
-        }
+
+    }
+
+    //TODO!~ Integrate this with the constructor...
+    /**
+     * Sets the initial joint of a stick figure, normally this is the waist.
+     * Note that this REMOVES EXISTING JOINTS!
+     * @param waist Starting joint of the new stick figure.
+     * @return ID of the starting joint.
+     */
+    public int setWaist( Joint waist )
+    {
+        this.waist = waist;
+        joints.clear();
+        joints.add(waist);
+        return 0;
+    }
+
+    /**
+     * Given the ID of a joint, add a new Joint to it.
+     * @param sourceID ID of the joint, to which the new joint will be attached.
+     * @param newJointX X coordinate of the next joint.
+     * @param newJointY Y coordinate of the next joint.
+     * @param newJointZ Z coordinate of the next joint.
+     * @return ID of the new Joint.
+     */
+    public int addJoint( int sourceID, double newJointX, double newJointY, double newJointZ )
+    {
+        Joint source = joints.get( sourceID );
+        Joint nextJoint = source.addLineTo( newJointX, newJointY, newJointZ );
+        joints.add(nextJoint);
+        return joints.size()-1;
     }
 
     //TODO!~ Change "float x" to a heartbeat/clock-tick counter.
@@ -42,78 +71,8 @@ public class StickFigure
         Mat44 rot = MatrixFactory.RotateAroundZ( x );
 
         fullTransformation = Mat44.multiply( fullTransformation, Mat44.multiply( trans, rot ) );
-        calculate( fullTransformation );
 
         waist.draw2( canvas, fullTransformation );
-    }
-
-    /**
-     * Calculate the projection of the Stick Figure.
-     */
-    private void calculate( Mat44 transformation )
-    {
-        Vec4 waistLocation  = waist.location();
-        Vec4 neckLocation = neck.location(); //TODO!~  Determine from how it "descends" from waist, which is the root of our stick figure defnition tree.
-
-        Vec4 waistOnScreen = fullTransformation.multiply( waistLocation );
-        Vec4 neckOnScreen = fullTransformation.multiply( neckLocation );
-
-        PointF waist2D = new PointF( (float) waistOnScreen.get( 0 ), (float) waistOnScreen.get( 1 ) );
-        PointF neck2D = new PointF( (float) neckOnScreen.get( 0 ), (float) neckOnScreen.get( 1 ) );
-
-        Log.i("STICKFIGURE_LOGGIN",  "Waist position on screen: (" + waist2D.x + ", " + waist2D.y + ")" );
-        Log.i("STICKFIGURE_LOGGIN",  "Neck position on screen: (" + neck2D.x + ", " + neck2D.y + ")" );
-    }
-
-    public void stickFigHuman()
-    {
-        fullTransformation = determineTransformationMatrix();
-
-        waist = new Joint(0.0,0.0,0.8);
-        //neck = new Joint(0.0, 0.0, 0.6);
-        neck = waist.addLineTo(0.0, 0.0,  1.7);
-        Joint leftShoulder  = neck.addLineTo( -0.2, -0.2,  1.6);
-        Joint rightShoulder = neck.addLineTo( +0.2, +0.2, 1.6);
-
-        Joint leftHip  = waist.addLineTo(-0.2, 0.0, 0.8);
-        Joint rightHip = waist.addLineTo(+0.2, 0.0, 0.8);
-
-
-        Joint leftKnee = leftHip.addLineTo(-0.2, 0.0, 0.4);
-        Joint rightKnee = rightHip.addLineTo(+0.2, 0.0, 0.4);
-
-        Joint leftAnkle = leftKnee.addLineTo(-0.25, 0.0, 0.0);
-        Joint rightAnkle = rightKnee.addLineTo(+0.25, 0.0, 0.0);
-
-        //TODO!+
-
-        // But ... is "addLineTo"  adding absolute coordinates, or coordinates relative to the joint that we're adding?
-        // The first would be easier when importing Kinect Skeletons...
-    }
-
-    public void stickFigDog( )
-    {
-        float dogHeight = 0.45f; // Height measured at the shoulder
-
-        waist = new Joint( 0.0, 0.0, dogHeight );
-        neck = waist.addLineTo( 0.5, 0.0, dogHeight );
-
-        Joint leftHip      = waist.addLineTo(         0.0,-0.1, dogHeight );
-        Joint leftHindPaw  = leftHip.addLineTo(       0.0,-0.1,0.0     );
-        Joint rightHip     = waist.addLineTo(         0.0,+0.1, dogHeight );
-        Joint rightHindPaw = rightHip.addLineTo(      0.0,+0.1,0.0     );
-
-        Joint leftShoulder  = neck.addLineTo(         0.5,-0.1, dogHeight );
-        Joint leftFrontPaw  = leftShoulder.addLineTo( 0.5,-0.1, 0.0    );
-        Joint rightShoulder = neck.addLineTo(         0.5,+0.1, dogHeight );
-        Joint rightFrontPaw = rightShoulder.addLineTo(0.5,+0.1, 0.0    );
-
-        Joint tailPart1 = waist.addLineTo( -0.1, 0.0, dogHeight + 0.1 );
-        Joint tailPart2 = tailPart1.addLineTo( -0.2, 0.0, dogHeight + 0.2 );
-        Joint tailPart3 = tailPart2.addLineTo( -0.1, 0.0, dogHeight + 0.3 );
-
-        Joint head = neck.addLineTo( 0.60, 0.0, dogHeight + 0.2 );
-        Joint nose = head.addLineTo( 0.80, 0.0, dogHeight + 0.05 );
     }
 
     /**

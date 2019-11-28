@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.cormontia.android.stickfigures.stickfigure.StickFigure;
+import com.cormontia.android.stickfigures.stickfigure.StickFigureFactory;
 import com.cormontia.android.stickfigures.stickfigure.StickFigureType;
 
 import java.util.ArrayList;
@@ -28,8 +29,6 @@ public class MyView extends View
     private ValueAnimator valueAnim;
 
     private List<StickFigure> stickFigures = new ArrayList<>();
-    private StickFigure stickFig1 = new StickFigure( StickFigureType.Human );
-    private StickFigure stickFig2 = new StickFigure( StickFigureType.Dog );
 
     public MyView(Context context)
     {
@@ -67,8 +66,8 @@ public class MyView extends View
         valueAnim.setRepeatCount( ValueAnimator.INFINITE );
         valueAnim.setRepeatMode( ValueAnimator.REVERSE );
 
-        StickFigure fig1 = new StickFigure( StickFigureType.Human );
-        StickFigure fig2 = new StickFigure( StickFigureType.Dog );
+        StickFigure fig1 = StickFigureFactory.createHuman( );
+        StickFigure fig2 = StickFigureFactory.createDog( );
         stickFigures.add( fig1 );
         stickFigures.add( fig2 );
 
@@ -78,9 +77,7 @@ public class MyView extends View
                 @Override
                 public void onAnimationUpdate(ValueAnimator valueAnimator)
                 {
-                    //float animatedValue = (float) valueAnimator.getAnimatedValue( );
                     Integer animatedValue = (Integer) valueAnimator.getAnimatedValue( );
-                    //dx = (int) animatedValue;
                     x = animatedValue.floatValue();
                     invalidate();
                 }
