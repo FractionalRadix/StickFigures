@@ -6,9 +6,9 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.cormontia.android.stickfigures.stickfigure.HumanStickFigure;
 import com.cormontia.android.stickfigures.stickfigure.StickFigure;
 import com.cormontia.android.stickfigures.stickfigure.StickFigureFactory;
-import com.cormontia.android.stickfigures.stickfigure.StickFigureType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,11 +62,12 @@ public class MyView extends View
         // Initialize the animation.
         valueAnim = ValueAnimator.ofInt( 0, 359 );
         //valueAnim  = ValueAnimator.ofFloat( 0.0f, 2.68f );
-        valueAnim.setDuration( 1000 ); // duration in microseconds.
+        valueAnim.setDuration( 6000 ); // duration in microseconds.
         valueAnim.setRepeatCount( ValueAnimator.INFINITE );
         valueAnim.setRepeatMode( ValueAnimator.REVERSE );
 
-        StickFigure fig1 = StickFigureFactory.createHuman( );
+        final HumanStickFigure human = new HumanStickFigure();
+        StickFigure fig1 = human.createHuman();
         StickFigure fig2 = StickFigureFactory.createDog( );
         stickFigures.add( fig1 );
         stickFigures.add( fig2 );
@@ -79,6 +80,7 @@ public class MyView extends View
                 {
                     Integer animatedValue = (Integer) valueAnimator.getAnimatedValue( );
                     x = animatedValue.floatValue();
+                    human.rotateLeftShoulder();
                     invalidate();
                 }
             }

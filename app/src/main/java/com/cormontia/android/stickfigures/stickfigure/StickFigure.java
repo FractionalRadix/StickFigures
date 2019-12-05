@@ -66,7 +66,7 @@ public class StickFigure
 
     public void draw(Canvas canvas, int clockTick, float x)
     {
-        fullTransformation = this.determineTransformationMatrix();
+        fullTransformation = this.determineTransformationMatrix(); //TODO!~ No need to re-calculate this for every re-draw....
         Mat44 trans = MatrixFactory.Translate( 0.1 * x, 0.1 * x,  0.1 * x );
         Mat44 rot = MatrixFactory.RotateAroundZ( x );
 
@@ -94,7 +94,7 @@ public class StickFigure
         projection.set(2, 2, 0);
         // Fourth row: no changes.
 
-        logMatrix( projection );
+        //logMatrix( projection );
 
         // After projection, go from (projected) world coordinates to screen coordinates.
 
@@ -119,5 +119,13 @@ public class StickFigure
         Log.i("MAT44", "[" + matrix.get(3,0) +"," + matrix.get(3,1 )+", " + matrix.get(3,2) +", " +matrix.get(3,3) + "]");
     }
 
+    double getYaw( int jointID ) { return joints.get( jointID ).getYaw( ); }
+    void setYaw( int jointID, double yaw ) { joints.get(jointID).setYaw( yaw ); }
+
+    double getPitch( int jointID ) { return joints.get( jointID ).getPitch( ); }
+    void setPitch( int jointID , double pitch ) { joints.get( jointID ).setPitch( pitch ); }
+
+    double getRoll( int jointID ) { return joints.get( jointID ).getRoll( ); }
+    void setRoll( int jointID , double roll ) { joints.get( jointID ).setRoll( roll ); }
 
 }
