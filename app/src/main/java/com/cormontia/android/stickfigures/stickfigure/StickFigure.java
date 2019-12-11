@@ -1,12 +1,10 @@
 package com.cormontia.android.stickfigures.stickfigure;
 
 import android.graphics.Canvas;
-import android.graphics.PointF;
 import android.util.Log;
 
 import com.cormontia.android.stickfigures.matrix3d.Mat44;
 import com.cormontia.android.stickfigures.matrix3d.MatrixFactory;
-import com.cormontia.android.stickfigures.matrix3d.Vec4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,43 +13,56 @@ public class StickFigure
 {
     private Mat44 fullTransformation; // From world coordinates to screen coordinates.
 
-    private Joint waist;
-    private List<Joint> joints = new ArrayList<>();
+    private Stick root;
+    private List<Stick> sticks = new ArrayList<>( );
 
-    public StickFigure( )
+    /**
+     * Create a new Stick Figure, with a root point at (x,y,z).
+     * @param x x-coordinate of the starting point of the stick figure.
+     * @param y y-coordinate of the starting point of the stick figure.
+     * @param z z-coordinate of the starting point of the stick figure.
+     */
+    public StickFigure( double x, double y, double z )
     {
-
+        // The first "stick" is a 0-length stick.
+        root = new Stick( x, y, z,0 );
+        sticks.add( root );
     }
 
-    //TODO!~ Integrate this with the constructor...
-    /**
-     * Sets the initial joint of a stick figure, normally this is the waist.
-     * Note that this REMOVES EXISTING JOINTS!
-     * @param waist Starting joint of the new stick figure.
-     * @return ID of the starting joint.
-     */
-    public int setWaist( Joint waist )
+    public void propagateAngles( )
     {
-        this.waist = waist;
-        joints.clear();
-        joints.add(waist);
-        return 0;
+        root.propagateAngles();
     }
 
     /**
-     * Given the ID of a joint, add a new Joint to it.
-     * @param sourceID ID of the joint, to which the new joint will be attached.
-     * @param newJointX X coordinate of the next joint.
-     * @param newJointY Y coordinate of the next joint.
-     * @param newJointZ Z coordinate of the next joint.
-     * @return ID of the new Joint.
+     * Add a new Stick to the root point.
+     * @param endPointX X coordinate of the end of the next stick.
+     * @param endPointY Y coordinate of the end of the next stick.
+     * @param endPointZ Z coordinate of the end of the next stick.
+     * @return ID of the new Stick.
      */
-    public int addJoint( int sourceID, double newJointX, double newJointY, double newJointZ )
+    public int addStickToRoot( double endPointX, double endPointY, double endPointZ )
     {
-        Joint source = joints.get( sourceID );
-        Joint nextJoint = source.addLineTo( newJointX, newJointY, newJointZ );
-        joints.add(nextJoint);
-        return joints.size()-1;
+        Stick source = sticks.get( 0 );
+        Stick nextJoint = source.addLineTo( endPointX, endPointY, endPointZ );
+        sticks.add( nextJoint );
+        return sticks.size( )-1;
+    }
+
+    /**
+     * Given the ID of a Stick, add a new Stick to its end.
+     * @param sourceID ID of the stick, to which the new stack will be attached.
+     * @param endPointX X coordinate of the end of the next stick.
+     * @param endPointY Y coordinate of the end of the next stick.
+     * @param endPointZ Z coordinate of the end of the next stick.
+     * @return ID of the new Stick.
+     */
+    public int addStickToStick(int sourceID, double endPointX, double endPointY, double endPointZ )
+    {
+        Stick source = sticks.get( sourceID );
+        Stick nextStick = source.addLineTo( endPointX, endPointY, endPointZ );
+        sticks.add( nextStick );
+        return sticks.size( )-1;
     }
 
     //TODO!~ Change "float x" to a heartbeat/clock-tick counter.
@@ -64,7 +75,7 @@ public class StickFigure
     //   We want the origin of the world in the bottom of the screen.
     //   Note that this is a transformation of  the PROJECTION plane to the SCREEN, so it's 2D to 2D.
 
-    public void draw(Canvas canvas, int clockTick, float x)
+    public void draw( Canvas canvas, int clockTick, float x )
     {
         fullTransformation = this.determineTransformationMatrix(); //TODO!~ No need to re-calculate this for every re-draw....
         Mat44 trans = MatrixFactory.Translate( 0.1 * x, 0.1 * x,  0.1 * x );
@@ -72,7 +83,15 @@ public class StickFigure
 
         fullTransformation = Mat44.multiply( fullTransformation, Mat44.multiply( trans, rot ) );
 
-        waist.draw2( canvas, fullTransformation );
+        //if (root == null)
+        //{
+        //    Stick start = sticks.get(0);
+        //    start.draw2( canvas, fullTransformation );
+        //}
+        //else
+        //{
+            root.draw2(canvas, fullTransformation);
+        //}
     }
 
     /**
@@ -119,13 +138,13 @@ public class StickFigure
         Log.i("MAT44", "[" + matrix.get(3,0) +"," + matrix.get(3,1 )+", " + matrix.get(3,2) +", " +matrix.get(3,3) + "]");
     }
 
-    double getYaw( int jointID ) { return joints.get( jointID ).getYaw( ); }
-    void setYaw( int jointID, double yaw ) { joints.get(jointID).setYaw( yaw ); }
+    double getYaw( int jointID ) { return sticks.get( jointID ).getYaw( ); }
+    void setYaw( int jointID, double yaw ) { sticks.get(jointID).setYaw( yaw ); }
 
-    double getPitch( int jointID ) { return joints.get( jointID ).getPitch( ); }
-    void setPitch( int jointID , double pitch ) { joints.get( jointID ).setPitch( pitch ); }
+    double getPitch( int jointID ) { return sticks.get( jointID ).getPitch( ); }
+    void setPitch( int jointID , double pitch ) { sticks.get( jointID ).setPitch( pitch ); }
 
-    double getRoll( int jointID ) { return joints.get( jointID ).getRoll( ); }
-    void setRoll( int jointID , double roll ) { joints.get( jointID ).setRoll( roll ); }
+    double getRoll( int jointID ) { return sticks.get( jointID ).getRoll( ); }
+    void setRoll( int jointID , double roll ) { sticks.get( jointID ).setRoll( roll ); }
 
 }

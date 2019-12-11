@@ -5,7 +5,7 @@ import android.util.Log;
 public class HumanStickFigure
 {
     private StickFigure figure;
-    private Joint waistJoint;
+    private Stick waistJoint;
 
     private int waist, neck;
     private int leftShoulder, rightShoulder;
@@ -15,24 +15,25 @@ public class HumanStickFigure
 
     public StickFigure createHuman()
     {
-        figure = new StickFigure( );
+        figure = new StickFigure( 0.0, 0.0, 0.8 );
+        waist = 0;
 
-        waistJoint = new Joint(0.0,0.0,0.8);
-        waist = figure.setWaist( waistJoint );
+        neck = figure.addStickToRoot(0.0, 0.0, 1.7);
 
-        neck = figure.addJoint( waist,0.0, 0.0,  1.7);
+        leftShoulder  = figure.addStickToStick( neck, -0.2, -0.2, 1.6);
+        rightShoulder = figure.addStickToStick( neck, +0.2, +0.2, 1.6);
 
-        leftShoulder  = figure.addJoint( neck, -0.2, -0.2,  1.6);
-        rightShoulder = figure.addJoint( neck, +0.2, +0.2, 1.6);
+        leftHip  = figure.addStickToRoot(      -0.2, 0.0, 0.8);
+        rightHip = figure.addStickToRoot(      +0.2, 0.0, 0.8);
 
-        leftHip  = figure.addJoint( waist, -0.2, 0.0, 0.8);
-        rightHip = figure.addJoint( waist, +0.2, 0.0, 0.8);
+        leftKnee = figure.addStickToStick(      leftHip,  -0.2, 0.0, 0.4);
+        rightKnee = figure.addStickToStick(     rightHip, +0.2, 0.0, 0.4);
 
-        leftKnee = figure.addJoint(  leftHip,  -0.2, 0.0, 0.4);
-        rightKnee = figure.addJoint( rightHip, +0.2, 0.0, 0.4);
+        leftAnkle = figure.addStickToStick(     leftKnee, -0.25, 0.0, 0.0);
+        rightAnkle = figure.addStickToStick(    rightKnee,+0.25, 0.0, 0.0);
 
-        leftAnkle = figure.addJoint( leftKnee, -0.25, 0.0, 0.0);
-        rightAnkle = figure.addJoint(rightKnee,+0.25, 0.0, 0.0);
+        //TODO?+
+        figure.propagateAngles();
 
         return figure;
     }
@@ -40,17 +41,18 @@ public class HumanStickFigure
     //TODO!~ This is just to demo, to show that it's possible...
     public void rotateLeftShoulder( )
     {
-        double leftShoulderYaw = figure.getYaw( leftShoulder );
-        leftShoulderYaw += 0.1;
-        figure.setYaw( leftShoulder, leftShoulderYaw );
+        //double leftShoulderYaw = figure.getYaw( leftShoulder );
+        //leftShoulderYaw += 0.02;
+        //figure.setYaw( leftShoulder, leftShoulderYaw );
 
         double leftShoulderPitch = figure.getPitch( leftShoulder );
-        leftShoulderPitch += 0.1;
+        leftShoulderPitch += 0.015;
         figure.setPitch( leftShoulder, leftShoulderPitch );
 
-        waistJoint.propagateAngles();
+        //TODO!+
+        figure.propagateAngles();
 
-        Log.i("STICKFIGURES", "yaw=="+leftShoulderYaw+", pitch=="+leftShoulderPitch);
+        //Log.i("STICKFIGURES", "yaw=="+leftShoulderYaw+", pitch=="+leftShoulderPitch);
     }
 
 }
