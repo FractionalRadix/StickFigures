@@ -5,7 +5,6 @@ import android.util.Log;
 public class HumanStickFigure
 {
     private StickFigure figure;
-    private Stick waistJoint;
 
     private int waist, neck;
     private int leftShoulder, rightShoulder;
@@ -13,7 +12,7 @@ public class HumanStickFigure
     private int leftKnee, rightKnee;
     private int leftAnkle, rightAnkle;
 
-    public StickFigure createHuman()
+    public StickFigure createHuman( )
     {
         figure = new StickFigure( 0.0, 0.0, 0.8 );
         waist = 0;
@@ -32,8 +31,7 @@ public class HumanStickFigure
         leftAnkle = figure.addStickToStick(     leftKnee, -0.25, 0.0, 0.0);
         rightAnkle = figure.addStickToStick(    rightKnee,+0.25, 0.0, 0.0);
 
-        //TODO?+
-        figure.propagateAngles();
+        //figure.propagateAngles();
 
         return figure;
     }
@@ -49,8 +47,7 @@ public class HumanStickFigure
         leftShoulderPitch += 0.015;
         figure.setPitch( leftShoulder, leftShoulderPitch );
 
-        //TODO!+
-        figure.propagateAngles();
+        figure.propagateAngles( );
 
         //Log.i("STICKFIGURES", "yaw=="+leftShoulderYaw+", pitch=="+leftShoulderPitch);
     }
